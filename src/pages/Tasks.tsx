@@ -32,15 +32,18 @@ const Tasks = () => {
     updated_at: '',
   });
 
+  // Use env variable here
+  const API_URL = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
-    axios.get('http://localhost:3000/api/cerpschema/task')
+    axios.get(`${API_URL}/api/cerpschema/task`)
       .then((res) => setTasks(res.data))
       .catch((err) => console.error(err));
 
-    axios.get('http://localhost:3000/api/cerpschema/work_program')
+    axios.get(`${API_URL}/api/cerpschema/work_program`)
       .then((res) => setWorkPrograms(res.data))
       .catch((err) => console.error(err));
-  }, []);
+  }, [API_URL]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -67,7 +70,7 @@ const Tasks = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingId !== null) {
-      axios.put(`http://localhost:3000/api/cerpschema/task/${editingId}`, formData)
+      axios.put(`${API_URL}/api/cerpschema/task/${editingId}`, formData)
         .then(() => {
           setTasks((prev) =>
             prev.map((t) => (t.task_id === editingId ? { ...t, ...formData } : t))
@@ -77,7 +80,7 @@ const Tasks = () => {
         })
         .catch(err => alert('Update failed: ' + err.message));
     } else {
-      axios.post('http://localhost:3000/api/cerpschema/task', formData)
+      axios.post(`${API_URL}/api/cerpschema/task`, formData)
         .then((res) => {
           setTasks((prev) => [...prev, res.data]);
           alert('Task added successfully');
@@ -97,7 +100,7 @@ const Tasks = () => {
   };
 
   const handleDelete = (id: number) => {
-    axios.delete(`http://localhost:3000/api/cerpschema/task/${id}`)
+    axios.delete(`${API_URL}/api/cerpschema/task/${id}`)
       .then(() => {
         setTasks((prev) => prev.filter((t) => t.task_id !== id));
         alert('Task deleted successfully');
@@ -148,39 +151,36 @@ const Tasks = () => {
           />
 
           <div className="flex gap-4">
+            <div className="flex flex-col w-full">
+              <label htmlFor="start_date" className="mb-1 text-sm font-medium text-gray-700">
+                Start Date
+              </label>
+              <input
+                type="date"
+                id="start_date"
+                name="start_date"
+                value={formData.start_date}
+                onChange={handleChange}
+                className="border px-3 py-2 w-full rounded"
+                required
+              />
+            </div>
 
-  <div className="flex flex-col w-full">
-    <label htmlFor="start_date" className="mb-1 text-sm font-medium text-gray-700">
-      Start Date
-    </label>
-    <input
-      type="date"
-      id="start_date"
-      name="start_date"
-      value={formData.start_date}
-      onChange={handleChange}
-      className="border px-3 py-2 w-full rounded"
-      required
-    />
-  </div>
-
- 
-  <div className="flex flex-col w-full">
-    <label htmlFor="end_date" className="mb-1 text-sm font-medium text-gray-700">
-      End Date
-    </label>
-    <input
-      type="date"
-      id="end_date"
-      name="end_date"
-      value={formData.end_date}
-      onChange={handleChange}
-      className="border px-3 py-2 w-full rounded"
-      required
-    />
-  </div>
-</div>
-
+            <div className="flex flex-col w-full">
+              <label htmlFor="end_date" className="mb-1 text-sm font-medium text-gray-700">
+                End Date
+              </label>
+              <input
+                type="date"
+                id="end_date"
+                name="end_date"
+                value={formData.end_date}
+                onChange={handleChange}
+                className="border px-3 py-2 w-full rounded"
+                required
+              />
+            </div>
+          </div>
 
           <input
             type="text"
@@ -191,38 +191,36 @@ const Tasks = () => {
             className="w-full border p-2 rounded"
           />
 
-          
           <div className="flex gap-4">
             <div className="flex flex-col w-full">
              <label htmlFor="created_at" className="mb-1 text-sm font-medium text-gray-700">
               Created At
              </label>
               <input
-              type="datetime-local"
-               id="created_at"
-               name="created_at"
-               value={formData.created_at}
-               onChange={handleChange}
-               className="w-full border p-2 rounded"
+                type="datetime-local"
+                id="created_at"
+                name="created_at"
+                value={formData.created_at}
+                onChange={handleChange}
+                className="w-full border p-2 rounded"
                 required
                />
             </div>
 
- 
             <div className="flex flex-col w-full">
-                <label htmlFor="updated_at" className="mb-1 text-sm font-medium text-gray-700">
-                    Updated At
-                </label>
-               <input
-                 type="datetime-local"
-                 id="updated_at"
+              <label htmlFor="updated_at" className="mb-1 text-sm font-medium text-gray-700">
+                Updated At
+              </label>
+              <input
+                type="datetime-local"
+                id="updated_at"
                 name="updated_at"
                 value={formData.updated_at}
-                    onChange={handleChange}
+                onChange={handleChange}
                 className="w-full border p-2 rounded"
-               required
-                 />
-             </div>
+                required
+              />
+            </div>
           </div>
 
           <div className="flex justify-between">
@@ -295,4 +293,3 @@ const Tasks = () => {
 };
 
 export default Tasks;
-

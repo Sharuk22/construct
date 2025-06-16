@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+/**
+ * 4. Important Notes:
+ * 
+ * - .env file එකේ වෙනස්කම් කරන්න ඕනෙ නම්, frontend development server එක restart කරන්න වෙනවා.
+ * - Vite uses `import.meta.env` to access environment variables that start with `VITE_`.
+ * - Backend URL එක production environment එකට deploy කරන විට, `.env` එකේ URL එකත් update කරන්න.
+ * 
+ * Example usage in this file:
+ * const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+ */
+
 type WorkProgram = {
   work_program_id: number;
   project_id: number;
@@ -26,6 +37,8 @@ type Boq = {
 };
 
 const WorkPrograms = () => {
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
   const [workPrograms, setWorkPrograms] = useState<WorkProgram[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [boqs, setBoqs] = useState<Boq[]>([]);
@@ -45,18 +58,18 @@ const WorkPrograms = () => {
   const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
-    axios.get('http://localhost:3000/api/cerpschema/work_program')
+    axios.get(`${API_BASE_URL}/api/cerpschema/work_program`)
       .then((res) => setWorkPrograms(res.data))
       .catch((err) => console.error('Error fetching work programs:', err));
 
-    axios.get('http://localhost:3000/api/cerpschema/projects')
+    axios.get(`${API_BASE_URL}/api/cerpschema/projects`)
       .then((res) => setProjects(res.data))
       .catch((err) => console.error('Error fetching projects:', err));
 
-    axios.get('http://localhost:3000/api/cerpschema/boqs')
+    axios.get(`${API_BASE_URL}/api/cerpschema/boqs`)
       .then((res) => setBoqs(res.data))
       .catch((err) => console.error('Error fetching BOQs:', err));
-  }, []);
+  }, [API_BASE_URL]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -100,7 +113,7 @@ const WorkPrograms = () => {
     e.preventDefault();
 
     if (editingId !== null) {
-      axios.put(`http://localhost:3000/api/cerpschema/work_program/${editingId}`, formData)
+      axios.put(`${API_BASE_URL}/api/cerpschema/work_program/${editingId}`, formData)
         .then(() => {
           setWorkPrograms((prev) =>
             prev.map((wp) => wp.work_program_id === editingId ? { ...wp, ...formData } : wp)
@@ -111,7 +124,7 @@ const WorkPrograms = () => {
         })
         .catch((err) => console.error('Error updating:', err));
     } else {
-      axios.post('http://localhost:3000/api/cerpschema/work_program', formData)
+      axios.post(`${API_BASE_URL}/api/cerpschema/work_program`, formData)
         .then((res) => {
           setWorkPrograms((prev) => [...prev, res.data]);
           alert('Data Successfully Inserted!');
@@ -141,7 +154,7 @@ const WorkPrograms = () => {
   };
 
   const handleDelete = (id: number) => {
-    axios.delete(`http://localhost:3000/api/cerpschema/work_program/${id}`)
+    axios.delete(`${API_BASE_URL}/api/cerpschema/work_program/${id}`)
       .then(() => {
         setWorkPrograms((prev) => prev.filter((wp) => wp.work_program_id !== id));
         alert('Data Successfully Deleted!');
@@ -166,8 +179,6 @@ const WorkPrograms = () => {
 
       {showForm && (
         <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow space-y-4">
-          
-
           <div className="flex gap-4">
             <select
               name="project_id"
@@ -200,8 +211,6 @@ const WorkPrograms = () => {
             </select>
           </div>
 
-          
-
           <input
             name="work_name"
             value={formData.work_name}
@@ -212,74 +221,68 @@ const WorkPrograms = () => {
           />
 
           <div className="flex gap-4">
-  
-  <div className="flex flex-col w-full">
-    <label htmlFor="start_date" className="mb-1 text-sm font-medium text-gray-700">
-      Start Date
-    </label>
-    <input
-      type="date"
-      id="start_date"
-      name="start_date"
-      value={formData.start_date}
-      onChange={handleChange}
-      className="border px-3 py-2 w-full rounded"
-      required
-    />
-  </div>
-
-  
-  <div className="flex flex-col w-full">
-    <label htmlFor="end_date" className="mb-1 text-sm font-medium text-gray-700">
-      End Date
-    </label>
-    <input
-      type="date"
-      id="end_date"
-      name="end_date"
-      value={formData.end_date}
-      onChange={handleChange}
-      className="border px-3 py-2 w-full rounded"
-      required
-    />
-  </div>
-</div>
-
-
-          
-           <div className="flex gap-4">
             <div className="flex flex-col w-full">
-             <label htmlFor="created_at" className="mb-1 text-sm font-medium text-gray-700">
-              Created At
-             </label>
+              <label htmlFor="start_date" className="mb-1 text-sm font-medium text-gray-700">
+                Start Date
+              </label>
               <input
-              type="datetime-local"
-               id="created_at"
-               name="created_at"
-               value={formData.created_at}
-               onChange={handleChange}
-               className="w-full border p-2 rounded"
+                type="date"
+                id="start_date"
+                name="start_date"
+                value={formData.start_date}
+                onChange={handleChange}
+                className="border px-3 py-2 w-full rounded"
                 required
-               />
+              />
             </div>
 
- 
             <div className="flex flex-col w-full">
-                <label htmlFor="updated_at" className="mb-1 text-sm font-medium text-gray-700">
-                    Updated At
-                </label>
-               <input
-                 type="datetime-local"
-                 id="updated_at"
+              <label htmlFor="end_date" className="mb-1 text-sm font-medium text-gray-700">
+                End Date
+              </label>
+              <input
+                type="date"
+                id="end_date"
+                name="end_date"
+                value={formData.end_date}
+                onChange={handleChange}
+                className="border px-3 py-2 w-full rounded"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="flex flex-col w-full">
+              <label htmlFor="created_at" className="mb-1 text-sm font-medium text-gray-700">
+                Created At
+              </label>
+              <input
+                type="datetime-local"
+                id="created_at"
+                name="created_at"
+                value={formData.created_at}
+                onChange={handleChange}
+                className="w-full border p-2 rounded"
+                required
+              />
+            </div>
+
+            <div className="flex flex-col w-full">
+              <label htmlFor="updated_at" className="mb-1 text-sm font-medium text-gray-700">
+                Updated At
+              </label>
+              <input
+                type="datetime-local"
+                id="updated_at"
                 name="updated_at"
                 value={formData.updated_at}
-                    onChange={handleChange}
+                onChange={handleChange}
                 className="w-full border p-2 rounded"
-               required
-                 />
-             </div>
+                required
+              />
+            </div>
           </div>
-         
 
           <input
             name="remarks"
@@ -331,9 +334,7 @@ const WorkPrograms = () => {
               <tr key={wp.work_program_id} className="border-b">
                 <td>{wp.work_program_id}</td>
                 <td>{projects.find(p => p.project_id === wp.project_id)?.project_name || wp.project_id}</td>
-                <td >
-                  {boqs.find(b => b.boq_id === wp.boq_id)?.title || wp.boq_id}
-                </td>
+                <td>{boqs.find(b => b.boq_id === wp.boq_id)?.title || wp.boq_id}</td>
                 <td>{wp.work_name}</td>
                 <td>{wp.start_date}</td>
                 <td>{wp.end_date}</td>

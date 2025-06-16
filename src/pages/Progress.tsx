@@ -1,10 +1,10 @@
+// src/pages/Progress.tsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 type ProgressEntry = {
   progress_id: number;
   task_id: number;
-  // boq_item_id: string;
   quantity: string;
   date: string;
   remark: string;
@@ -17,18 +17,11 @@ type Task = {
   task_name: string;
 };
 
-// type BOQItem = {
-//   boq_item_id: string;
-// };
-
 const Progress = () => {
   const [progressList, setProgressList] = useState<ProgressEntry[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
-  //const [boq_items, setBoqs] = useState<BOQItem[]>([]);
-
   const [formData, setFormData] = useState({
-    task_id: 0,           
-   // boq_item_id: '',
+    task_id: 0,
     quantity: '',
     date: '',
     remark: '',
@@ -39,19 +32,17 @@ const Progress = () => {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
-    axios.get('http://localhost:3000/api/cerpschema/daily_progress_monitoring')
+    axios.get(`${API_URL}/api/cerpschema/daily_progress_monitoring`)
       .then((res) => setProgressList(res.data))
       .catch((err) => console.error('Error fetching progress:', err));
 
-    axios.get('http://localhost:3000/api/cerpschema/task')
+    axios.get(`${API_URL}/api/cerpschema/task`)
       .then((res) => setTasks(res.data))
       .catch((err) => console.error('Error fetching tasks:', err));
-
-    // axios.get('http://localhost:3000/api/cerpschema/boq_items')
-    //   .then((res) => setBoqs(res.data))
-    //   .catch((err) => console.error('Error fetching BOQ items:', err));
-  }, []);
+  }, [API_URL]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -66,7 +57,6 @@ const Progress = () => {
   const clearForm = () => {
     setFormData({
       task_id: 0,
-     // boq_item_id: '',
       quantity: '',
       date: '',
       remark: '',
@@ -78,11 +68,10 @@ const Progress = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     const payload = { ...formData };
 
     if (editingId !== null) {
-      axios.put(`http://localhost:3000/api/cerpschema/daily_progress_monitoring/${editingId}`, payload)
+      axios.put(`${API_URL}/api/cerpschema/daily_progress_monitoring/${editingId}`, payload)
         .then(() => {
           setProgressList((prev) =>
             prev.map((entry) =>
@@ -95,7 +84,7 @@ const Progress = () => {
         })
         .catch((error) => alert('Update failed: ' + error.message));
     } else {
-      axios.post('http://localhost:3000/api/cerpschema/daily_progress_monitoring', payload)
+      axios.post(`${API_URL}/api/cerpschema/daily_progress_monitoring`, payload)
         .then((res) => {
           setProgressList((prev) => [...prev, res.data]);
           alert('Progress Added!');
@@ -111,7 +100,6 @@ const Progress = () => {
     if (selected) {
       setFormData({
         task_id: selected.task_id,
-      //  boq_item_id: selected.boq_item_id,
         quantity: selected.quantity,
         date: selected.date,
         remark: selected.remark,
@@ -125,7 +113,7 @@ const Progress = () => {
 
   const handleDelete = (progress_id: number) => {
     if (window.confirm('Are you sure you want to delete this entry?')) {
-      axios.delete(`http://localhost:3000/api/cerpschema/daily_progress_monitoring/${progress_id}`)
+      axios.delete(`${API_URL}/api/cerpschema/daily_progress_monitoring/${progress_id}`)
         .then(() => {
           setProgressList((prev) => prev.filter((entry) => entry.progress_id !== progress_id));
           alert('Progress Deleted!');
@@ -175,21 +163,6 @@ const Progress = () => {
                 </option>
               ))}
             </select>
-
-            {/* <select
-              name="boq_item_id"
-              value={formData.boq_item_id}
-              onChange={handleChange}
-              className="w-full border p-2 rounded"
-              required
-            >
-              <option value="">Select BOQ Item</option>
-              {boq_items.map((boq) => (
-                <option key={boq.boq_item_id} value={boq.boq_item_id}>
-                  {boq.boq_item_id}
-                </option>
-              ))}
-            </select> */}
           </div>
 
           <input
@@ -203,20 +176,17 @@ const Progress = () => {
           />
 
           <div className="flex flex-col w-full mb-4">
-  <label htmlFor="date" className="mb-1 text-sm font-medium text-gray-700">
-    Date
-  </label>
-  <input
-    type="date"
-    id="date"
-    name="date"
-    value={formData.date}
-    onChange={handleChange}
-    className="w-full border p-2 rounded"
-    required
-  />
-</div>
-
+            <label htmlFor="date" className="mb-1 text-sm font-medium text-gray-700">Date</label>
+            <input
+              type="date"
+              id="date"
+              name="date"
+              value={formData.date}
+              onChange={handleChange}
+              className="w-full border p-2 rounded"
+              required
+            />
+          </div>
 
           <input
             type="text"
@@ -229,35 +199,30 @@ const Progress = () => {
 
           <div className="flex gap-4">
             <div className="flex flex-col w-full">
-             <label htmlFor="created_at" className="mb-1 text-sm font-medium text-gray-700">
-              Created At
-             </label>
+              <label htmlFor="created_at" className="mb-1 text-sm font-medium text-gray-700">Created At</label>
               <input
-              type="datetime-local"
-               id="created_at"
-               name="created_at"
-               value={formData.created_at}
-               onChange={handleChange}
-               className="w-full border p-2 rounded"
+                type="datetime-local"
+                id="created_at"
+                name="created_at"
+                value={formData.created_at}
+                onChange={handleChange}
+                className="w-full border p-2 rounded"
                 required
-               />
+              />
             </div>
 
- 
             <div className="flex flex-col w-full">
-                <label htmlFor="updated_at" className="mb-1 text-sm font-medium text-gray-700">
-                    Updated At
-                </label>
-               <input
-                 type="datetime-local"
-                 id="updated_at"
+              <label htmlFor="updated_at" className="mb-1 text-sm font-medium text-gray-700">Updated At</label>
+              <input
+                type="datetime-local"
+                id="updated_at"
                 name="updated_at"
                 value={formData.updated_at}
-                    onChange={handleChange}
+                onChange={handleChange}
                 className="w-full border p-2 rounded"
-               required
-                 />
-             </div>
+                required
+              />
+            </div>
           </div>
 
           <div className="flex justify-between">
@@ -284,7 +249,6 @@ const Progress = () => {
             <tr className="border-b">
               <th>Progress ID</th>
               <th>Task Name</th>
-              {/* <th>BOQ Item</th> */}
               <th>Quantity</th>
               <th>Date</th>
               <th>Remark</th>
@@ -300,7 +264,6 @@ const Progress = () => {
                 <tr key={entry.progress_id} className="border-b">
                   <td>{entry.progress_id}</td>
                   <td>{task ? task.task_name : 'N/A'}</td>
-                  {/* <td>{entry.boq_item_id}</td> */}
                   <td>{entry.quantity}</td>
                   <td>{entry.date}</td>
                   <td>{entry.remark}</td>
@@ -323,7 +286,6 @@ const Progress = () => {
                 </tr>
               );
             })}
-            
           </tbody>
         </table>
       </div>
@@ -332,7 +294,3 @@ const Progress = () => {
 };
 
 export default Progress;
-
-
-
-
